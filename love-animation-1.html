@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L O V E — ∞</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --ink:#05050a;
+  --neon:#ff2d6b;
+  --neon2:#ff8c42;
+  --neon3:#c026ff;
+  --ice:#7df9ff;
+  --white:#f5f0eb;
+  --dim:rgba(255,45,107,0.07);
+}
+
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  background:var(--ink);
+  font-family:'Space Mono',monospace;
+  cursor:none;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.035;
+  pointer-events:none;z-index:999;
+  mix-blend-mode:overlay;
+}
+
+/* ── SCANLINES ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  pointer-events:none;z-index:998;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cur{
+  position:fixed;top:0;left:0;
+  width:24px;height:24px;
+  pointer-events:none;z-index:9999;
+  mix-blend-mode:difference;
+}
+#cur-dot{
+  position:fixed;top:0;left:0;
+  width:6px;height:6px;
+  background:var(--neon);
+  border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 12px var(--neon),0 0 24px var(--neon);
+  transition:transform 0.1s;
+}
+
+/* ── GRID LINES ── */
+.grid{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,45,107,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,45,107,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;z-index:1;
+  animation:gridDrift 30s linear infinite;
+}
+@keyframes gridDrift{
+  from{background-position:0 0;}
+  to{background-position:60px 60px;}
+}
+
+/* ── CANVAS ── */
+canvas{
+  position:fixed;inset:0;
+  pointer-events:none;z-index:2;
+}
+
+/* ── MAIN LAYOUT ── */
+.stage{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:10;pointer-events:none;
+}
+
+/* ── BIG GLITCH TITLE ── */
+.glitch-wrap{
+  position:relative;
+  margin-bottom:8px;
+}
+
+.big-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(120px,22vw,260px);
+  letter-spacing:-0.03em;
+  line-height:0.85;
+  color:var(--white);
+  position:relative;
+  display:block;
+  animation:glitch1 5s infinite;
+}
+.big-title::before,.big-title::after{
+  content:attr(data-text);
+  position:absolute;top:0;left:0;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:inherit;
+  letter-spacing:inherit;
+}
+.big-title::before{
+  color:var(--neon);
+  clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);
+  transform:translate(-3px,0);
+  animation:glitch2 5s infinite;
+  opacity:0.8;
+}
+.big-title::after{
+  color:var(--ice);
+  clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);
+  transform:translate(3px,0);
+  animation:glitch3 5s infinite;
+  opacity:0.7;
+}
+
+@keyframes glitch1{
+  0%,92%,100%{transform:none;filter:none;}
+  93%{transform:skew(-1deg);filter:brightness(1.2);}
+  94%{transform:skew(1deg) translateX(4px);}
+  95%{transform:none;filter:hue-rotate(90deg);}
+  96%{transform:translateX(-4px);}
+  97%{transform:none;}
+}
+@keyframes glitch2{
+  0%,92%,100%{opacity:0;}
+  93%,97%{opacity:0.8;transform:translate(-6px,2px);}
+  95%{opacity:0.8;transform:translate(6px,-2px);}
+}
+@keyframes glitch3{
+  0%,92%,100%{opacity:0;}
+  94%,97%{opacity:0.7;transform:translate(6px,-3px);}
+  96%{opacity:0.7;transform:translate(-6px,3px);}
+}
+
+/* ── SUB TEXT ── */
+.sub{
+  font-family:'DM Serif Display',serif;
+  font-style:italic;
+  font-size:clamp(14px,1.8vw,20px);
+  color:var(--neon);
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  opacity:0.9;
+  animation:subPulse 3s ease-in-out infinite;
+  text-shadow:0 0 20px var(--neon),0 0 60px rgba(255,45,107,0.3);
+}
+@keyframes subPulse{
+  0%,100%{opacity:0.9;text-shadow:0 0 20px var(--neon),0 0 60px rgba(255,45,107,0.3);}
+  50%{opacity:0.6;text-shadow:0 0 40px var(--neon),0 0 100px rgba(255,45,107,0.5);}
+}
+
+/* ── COUNTER ── */
+.counter{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:rgba(255,45,107,0.4);
+  letter-spacing:0.3em;
+  margin-top:28px;
+  text-transform:uppercase;
+}
+
+/* ── CORNER DECO ── */
+.corner{
+  position:fixed;
+  font-family:'Space Mono',monospace;
+  font-size:9px;
+  color:rgba(255,45,107,0.25);
+  letter-spacing:0.2em;
+  pointer-events:none;z-index:20;
+  text-transform:uppercase;
+}
+.c-tl{top:24px;left:24px;}
+.c-tr{top:24px;right:24px;text-align:right;}
+.c-bl{bottom:24px;left:24px;}
+.c-br{bottom:24px;right:24px;text-align:right;}
+
+/* ── SIDE BARS ── */
+.bar-l,.bar-r{
+  position:fixed;top:0;bottom:0;
+  width:1px;
+  background:linear-gradient(to bottom,transparent,var(--neon) 30%,var(--neon3) 70%,transparent);
+  opacity:0.15;
+  pointer-events:none;z-index:5;
+}
+.bar-l{left:40px;}
+.bar-r{right:40px;}
+
+/* ── CLICK SHOCKWAVE ── */
+.shock{
+  position:fixed;border-radius:50%;
+  pointer-events:none;z-index:50;
+  transform:translate(-50%,-50%) scale(0);
+  border:1px solid var(--neon);
+  box-shadow:0 0 20px var(--neon),inset 0 0 20px rgba(255,45,107,0.1);
+  animation:shock 1s cubic-bezier(0.2,0.6,0.4,1) forwards;
+}
+@keyframes shock{
+  to{transform:translate(-50%,-50%) scale(12);opacity:0;}
+}
+
+/* ── FLOATING CHARS ── */
+.char{
+  position:fixed;
+  font-family:'Bebas Neue',sans-serif;
+  color:var(--neon);
+  pointer-events:none;z-index:3;
+  opacity:0;
+  animation:charFloat linear forwards;
+  text-shadow:0 0 20px var(--neon);
+}
+@keyframes charFloat{
+  0%{opacity:0;transform:translateY(0) scale(1) rotate(0deg);}
+  10%{opacity:0.7;}
+  80%{opacity:0.3;}
+  100%{opacity:0;transform:translateY(-90vh) scale(0.5) rotate(var(--cr));}
+}
+
+/* ── MAGNETIC LINES (SVG) ── */
+#field-svg{
+  position:fixed;inset:0;
+  width:100%;height:100%;
+  pointer-events:none;z-index:2;
+  opacity:0.6;
+}
+
+/* ── BOTTOM HINT ── */
+.hint{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;
+  font-size:9px;letter-spacing:0.4em;
+  color:rgba(255,45,107,0.3);
+  text-transform:uppercase;
+  pointer-events:none;z-index:20;
+  animation:hintBlink 4s ease-in-out infinite;
+}
+@keyframes hintBlink{0%,100%{opacity:0.3;}50%{opacity:0.1;}}
+
+/* ── HEARTLINE ── */
+#heartline{
+  position:fixed;bottom:0;left:0;right:0;
+  height:60px;
+  pointer-events:none;z-index:6;
+}
+</style>
+</head>
+<body>
+
+<div class="grid"></div>
+
+<!-- Side bars -->
+<div class="bar-l"></div>
+<div class="bar-r"></div>
+
+<!-- Corners -->
+<div class="corner c-tl">SYS // LOVE.EXE<br>VER 2.0.26</div>
+<div class="corner c-tr">∞ RUNNING<br>NO ERRORS</div>
+<div class="corner c-bl" id="coords">X:000 Y:000</div>
+<div class="corner c-br">HEARTS: <span id="heartCount">0</span></div>
+
+<!-- Custom cursor -->
+<div id="cur">
+  <svg viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="#ff2d6b" stroke-width="1" opacity="0.6"/>
+    <line x1="12" y1="2" x2="12" y2="22" stroke="#ff2d6b" stroke-width="0.5" opacity="0.4"/>
+    <line x1="2" y1="12" x2="22" y2="12" stroke="#ff2d6b" stroke-width="0.5" opacity="0.4"/>
+  </svg>
+</div>
+<div id="cur-dot"></div>
+
+<!-- Magnetic field SVG -->
+<svg id="field-svg"><g id="field-lines"></g></svg>
+
+<!-- Heart ECG line -->
+<svg id="heartline" id="heartline"></svg>
+
+<!-- Canvas for particles -->
+<canvas id="cv"></canvas>
+
+<!-- Stage -->
+<div class="stage">
+  <div class="glitch-wrap">
+    <span class="big-title" data-text="LOVE">LOVE</span>
+  </div>
+  <div class="sub">forever &nbsp;·&nbsp; infinite &nbsp;·&nbsp; now</div>
+  <div class="counter" id="counter">[ 00:00:00 ]</div>
+</div>
+
+<div class="hint">▸ &nbsp; move &nbsp;/&nbsp; click &nbsp;/&nbsp; feel &nbsp; ◂</div>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cur');
+const curDot = document.getElementById('cur-dot');
+const coords = document.getElementById('coords');
+let mx=innerWidth/2, my=innerHeight/2;
+let tx=mx,ty=my;
+
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  curDot.style.left=mx+'px'; curDot.style.top=my+'px';
+  coords.textContent=`X:${String(Math.round(mx)).padStart(3,'0')} Y:${String(Math.round(my)).padStart(3,'0')}`;
+});
+
+// Lagged crosshair
+function lerpCursor(){
+  tx+=(mx-tx)*0.12; ty+=(my-ty)*0.12;
+  cur.style.left=(tx-12)+'px'; cur.style.top=(ty-12)+'px';
+  requestAnimationFrame(lerpCursor);
+}
+lerpCursor();
+
+// ── CANVAS PARTICLES ──
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+cv.width=innerWidth; cv.height=innerHeight;
+window.addEventListener('resize',()=>{cv.width=innerWidth;cv.height=innerHeight;buildField();});
+
+const pts=[];
+let heartTotal=0;
+const heartCountEl=document.getElementById('heartCount');
+
+function drawHeart(ctx,x,y,s,rot=0){
+  ctx.save();
+  ctx.translate(x,y); ctx.rotate(rot);
+  ctx.scale(s/10,s/10);
+  ctx.beginPath();
+  ctx.moveTo(0,-2);
+  ctx.bezierCurveTo(-5,-8,-10,-3,-10,1);
+  ctx.bezierCurveTo(-10,6,0,10,0,10);
+  ctx.bezierCurveTo(0,10,10,6,10,1);
+  ctx.bezierCurveTo(10,-3,5,-8,0,-2);
+  ctx.closePath();
+  ctx.restore();
+}
+
+function spawnPt(x,y,burst=false){
+  const n=burst?20:1;
+  for(let i=0;i<n;i++){
+    const a=burst?(Math.PI*2*i/n+Math.random()*0.4):Math.random()*Math.PI*2;
+    const spd=burst?(1.5+Math.random()*5):(0.3+Math.random()*1);
+    const sz=burst?(5+Math.random()*16):(3+Math.random()*6);
+    // Style: neon, outline, filled, or hollow
+    const style=['neon','outline','filled','outline'][Math.floor(Math.random()*4)];
+    const hues=[340,20,280,180][Math.floor(Math.random()*4)];
+    pts.push({
+      x,y,
+      vx:Math.cos(a)*spd*(burst?1:0.2),
+      vy:Math.sin(a)*spd-(burst?1.5:2+Math.random()*2),
+      sz, alpha:1,
+      decay:burst?0.013+Math.random()*0.008:0.010+Math.random()*0.008,
+      g:0.04,
+      rot:Math.random()*Math.PI*2,
+      spin:(Math.random()-0.5)*0.1,
+      style, hue:hues,
+      trail:[]
+    });
+    heartTotal++;
+    heartCountEl.textContent=heartTotal;
+  }
+}
+
+let lastSpawn=0;
+document.addEventListener('mousemove',e=>{
+  const now=Date.now();
+  if(now-lastSpawn>50){spawnPt(e.clientX,e.clientY);lastSpawn=now;}
+});
+
+document.addEventListener('click',e=>{
+  spawnPt(e.clientX,e.clientY,true);
+  createShock(e.clientX,e.clientY);
+  spawnChars(e.clientX,e.clientY);
+});
+
+function animPts(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let i=pts.length-1;i>=0;i--){
+    const p=pts[i];
+    // Store trail
+    p.trail.push({x:p.x,y:p.y,a:p.alpha});
+    if(p.trail.length>8)p.trail.shift();
+
+    // Draw trail
+    for(let j=0;j<p.trail.length;j++){
+      const t=p.trail[j];
+      const ta=(j/p.trail.length)*t.a*0.3;
+      ctx.save();
+      ctx.globalAlpha=ta;
+      ctx.strokeStyle=`hsl(${p.hue},100%,65%)`;
+      ctx.lineWidth=0.5;
+      drawHeart(ctx,t.x,t.y,p.sz*0.6,p.rot);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    p.x+=p.vx; p.y+=p.vy;
+    p.vy+=p.g; p.vx*=0.99;
+    p.alpha-=p.decay;
+    p.rot+=p.spin;
+    if(p.alpha<=0){pts.splice(i,1);continue;}
+
+    ctx.save();
+    ctx.globalAlpha=p.alpha;
+
+    if(p.style==='neon'){
+      ctx.shadowBlur=16;
+      ctx.shadowColor=`hsl(${p.hue},100%,65%)`;
+      ctx.fillStyle=`hsl(${p.hue},100%,65%)`;
+      drawHeart(ctx,p.x,p.y,p.sz,p.rot);
+      ctx.fill();
+    } else if(p.style==='outline'){
+      ctx.strokeStyle=`hsl(${p.hue},100%,70%)`;
+      ctx.lineWidth=1.2;
+      ctx.shadowBlur=8; ctx.shadowColor=`hsl(${p.hue},100%,60%)`;
+      drawHeart(ctx,p.x,p.y,p.sz,p.rot);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle=`hsl(${p.hue},80%,55%)`;
+      drawHeart(ctx,p.x,p.y,p.sz,p.rot);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  requestAnimationFrame(animPts);
+}
+animPts();
+
+// ── SHOCKWAVE ──
+function createShock(x,y){
+  for(let i=0;i<3;i++){
+    const s=document.createElement('div');
+    s.className='shock';
+    s.style.cssText=`left:${x}px;top:${y}px;width:40px;height:40px;animation-delay:${i*0.15}s;
+      border-color:hsl(${[340,20,280][i]},100%,65%);
+      box-shadow:0 0 20px hsl(${[340,20,280][i]},100%,65%);`;
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1200+i*150);
+  }
+}
+
+// ── FLOATING CHARS ──
+const LOVE_CHARS=['L','O','V','E','♥','∞','✦','★','→','←','↑','↓','<3','//',';;'];
+function spawnChars(x,y){
+  for(let i=0;i<8;i++){
+    const c=document.createElement('div');
+    c.className='char';
+    const ch=LOVE_CHARS[Math.floor(Math.random()*LOVE_CHARS.length)];
+    const sz=10+Math.random()*28;
+    const ox=(Math.random()-0.5)*160;
+    const cr=(Math.random()-0.5)*360;
+    const hue=[340,20,280,180][Math.floor(Math.random()*4)];
+    c.textContent=ch;
+    c.style.cssText=`
+      left:${x+ox}px;top:${y}px;
+      font-size:${sz}px;
+      color:hsl(${hue},100%,65%);
+      text-shadow:0 0 20px hsl(${hue},100%,65%);
+      --cr:${cr}deg;
+      animation-duration:${1.2+Math.random()*1.5}s;
+      animation-delay:${Math.random()*0.2}s;
+    `;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3000);
+  }
+}
+
+// ── MAGNETIC FIELD LINES (SVG) ──
+const fieldSvg=document.getElementById('field-lines');
+let fieldPts=[];
+
+function buildField(){
+  fieldSvg.innerHTML='';
+  fieldPts=[];
+  const cols=Math.floor(innerWidth/90)+1;
+  const rows=Math.floor(innerHeight/90)+1;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      fieldPts.push({
+        x:(c/(cols-1))*innerWidth,
+        y:(r/(rows-1))*innerHeight,
+        ox:(c/(cols-1))*innerWidth,
+        oy:(r/(rows-1))*innerHeight,
+        line:null
+      });
+    }
+  }
+  // Create SVG lines between adjacent pts
+  for(let i=0;i<fieldPts.length;i++){
+    const p=fieldPts[i];
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('stroke','rgba(255,45,107,0.12)');
+    l.setAttribute('stroke-width','0.5');
+    p.line=l;
+    fieldSvg.appendChild(l);
+  }
+}
+buildField();
+
+function updateField(){
+  const cx=mx,cy=my;
+  for(const p of fieldPts){
+    const dx=cx-p.ox, dy=cy-p.oy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const strength=Math.min(1,80/dist);
+    const angle=Math.atan2(dy,dx);
+    const push=strength*22;
+    p.x=p.ox+Math.cos(angle+Math.PI)*push;
+    p.y=p.oy+Math.sin(angle+Math.PI)*push;
+
+    // Draw tiny arrow / line
+    const nx=p.x+Math.cos(angle)*10*strength;
+    const ny=p.y+Math.sin(angle)*10*strength;
+    const l=p.line;
+    l.setAttribute('x1',p.x); l.setAttribute('y1',p.y);
+    l.setAttribute('x2',nx); l.setAttribute('y2',ny);
+    const op=0.05+strength*0.25;
+    l.setAttribute('stroke',`rgba(255,45,107,${op})`);
+  }
+}
+setInterval(updateField,30);
+
+// ── ECG HEARTLINE ──
+const ecgSvg=document.getElementById('heartline');
+let ecgX=0; const ecgSpeed=3;
+let ecgPath=''; let ecgEl=null;
+let beat=false;
+
+function ecgTick(){
+  const w=innerWidth, h=60;
+  ecgSvg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  ecgSvg.setAttribute('width',w); ecgSvg.setAttribute('height',h);
+
+  if(!ecgEl){
+    ecgEl=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    ecgEl.setAttribute('fill','none');
+    ecgEl.setAttribute('stroke','rgba(255,45,107,0.5)');
+    ecgEl.setAttribute('stroke-width','1.5');
+    ecgSvg.appendChild(ecgEl);
+  }
+
+  const pts2=[];
+  const period=180;
+  for(let x=0;x<w;x++){
+    const t=(x+ecgX)%period;
+    let y=30;
+    if(t<5) y=30;
+    else if(t<8) y=25;
+    else if(t<11) y=30;
+    else if(t<16) y=5;
+    else if(t<21) y=50;
+    else if(t<26) y=15;
+    else if(t<30) y=30;
+    else y=30;
+    pts2.push(`${x},${y}`);
+  }
+  ecgEl.setAttribute('points',pts2.join(' '));
+  ecgX+=ecgSpeed;
+  requestAnimationFrame(ecgTick);
+}
+ecgTick();
+
+// ── CLOCK COUNTER ──
+const startTime=Date.now();
+const counterEl=document.getElementById('counter');
+function updateCounter(){
+  const ms=Date.now()-startTime;
+  const s=Math.floor(ms/1000)%60;
+  const m=Math.floor(ms/60000)%60;
+  const h=Math.floor(ms/3600000)%24;
+  counterEl.textContent=`[ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ]`;
+  requestAnimationFrame(updateCounter);
+}
+updateCounter();
+
+// ── CURSOR STYLE ──
+document.addEventListener('mousedown',()=>curDot.style.transform='translate(-50%,-50%) scale(1.8)');
+document.addEventListener('mouseup',()=>curDot.style.transform='translate(-50%,-50%) scale(1)');
+
+// ── AUTO AMBIENT HEARTS ──
+setInterval(()=>{
+  const x=Math.random()*innerWidth;
+  const y=innerHeight+20;
+  // shoot from bottom
+  pts.push({
+    x,y,vx:(Math.random()-0.5)*0.8,
+    vy:-(2+Math.random()*3),
+    sz:6+Math.random()*10,
+    alpha:0.6,
+    decay:0.004+Math.random()*0.004,
+    g:0.012,
+    rot:Math.random()*Math.PI*2,
+    spin:(Math.random()-0.5)*0.05,
+    style:'outline',
+    hue:[340,20,280][Math.floor(Math.random()*3)],
+    trail:[]
+  });
+},220);
+</script>
+</body>
+</html>
